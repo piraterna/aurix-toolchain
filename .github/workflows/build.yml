@@ -1,0 +1,36 @@
+name: Build and Release
+
+on:
+  push:
+    branches: main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: sudo apt update -y && sudo apt install -y meson moreutils binutils gcc tar wget
+      - run: chmod +x ./build.sh && ./build.sh
+      - run: chmod +x ./package.sh && ./package.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: aurix-toolchain
+          path: aurix-toolchain.tar.xz
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
+        with: { name: aurix-toolchain }
+      - id: create_release
+        uses: elgohr/Github-Release-Action@v5
+        with:
+          title: Aurix Development Toolchain (${{ github.sha }})
+          tag: ${{ github.sha }}
+          prerelease: false
