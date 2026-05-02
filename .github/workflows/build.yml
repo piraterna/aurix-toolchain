@@ -33,13 +33,7 @@ jobs:
         with:
           title: Aurix Development Toolchain (${{ github.ref }})
           prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v3
+        if: github.ref_type == 'tag'
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./aurix-toolchain.tar.xz
-          asset_name: aurix-toolchain.tar.xz
-          asset_content_type: application/x-tar
+          files: aurix-toolchain.tar.xz
